@@ -27,14 +27,11 @@
 #include <GL/glut.h>
 
 
-extern xn::UserGenerator g_UserGenerator;
-extern xn::DepthGenerator g_DepthGenerator;
-
-extern XnBool g_bDrawBackground;
-extern XnBool g_bDrawPixels;
-extern XnBool g_bDrawSkeleton;
-extern XnBool g_bPrintID;
-extern XnBool g_bPrintState;
+extern bool g_bDrawBackground;
+extern bool g_bDrawPixels;
+extern bool g_bDrawSkeleton;
+extern bool g_bPrintID;
+extern bool g_bPrintState;
 
 
 #define MAX_DEPTH 10000
@@ -114,29 +111,40 @@ void glPrintString(void *font, char *str)
 
 void DrawLimb(XnUserID player, XnSkeletonJoint eJoint1, XnSkeletonJoint eJoint2)
 {
-	if (!g_UserGenerator.GetSkeletonCap().IsTracking(player))
+    int risky = 0;
+    OpenNISkeleton* oSkel = OpenNISkeleton::getInstance();
+
+	if (!oSkel->g_UserGenerator.GetSkeletonCap().IsTracking(player))
 	{
 		printf("not tracked!\n");
 		return;
 	}
 
 	XnSkeletonJointPosition joint1, joint2;
-	g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(player, eJoint1, joint1);
-	g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(player, eJoint2, joint2);
+	oSkel->g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(player, eJoint1, joint1);
+	oSkel->g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(player, eJoint2, joint2);
 
+    glColor4f(1.0, 1.0, 1.0, 1.0 );
 	if (joint1.fConfidence < 0.5 || joint2.fConfidence < 0.5)
 	{
-		return;
+		risky = 1;
+        glColor4f( 1.0, 0, 0, 1.0 );
 	}
+
 
 	XnPoint3D pt[2];
 	pt[0] = joint1.position;
 	pt[1] = joint2.position;
 
-	g_DepthGenerator.ConvertRealWorldToProjective(2, pt, pt);
+	oSkel->g_DepthGenerator.ConvertRealWorldToProjective(2, pt, pt);
 
     glVertex3i(pt[0].X, pt[0].Y, 0);
 	glVertex3i(pt[1].X, pt[1].Y, 0);
+
+    if( risky )
+    {
+        glColor4f(1.0, 1.0, 1.0, 1.0 );
+    }
 
 }
 
@@ -154,6 +162,8 @@ void DrawDepthMap(const xn::DepthMetaData& dmd, const xn::SceneMetaData& smd)
 	 float bottomRightX;
 	float texXpos;
 	float texYpos;
+
+        OpenNISkeleton* oSkel = OpenNISkeleton::getInstance();
 
 	if(!bInitialized)
 	{
@@ -281,14 +291,14 @@ void DrawDepthMap(const xn::DepthMetaData& dmd, const xn::SceneMetaData& smd)
 	char strLabel[50] = "";
 	XnUserID aUsers[15];
 	XnUInt16 nUsers = 15;
-	g_UserGenerator.GetUsers(aUsers, nUsers);
+	oSkel->g_UserGenerator.GetUsers(aUsers, nUsers);
 	for (int i = 0; i < nUsers; ++i)
 	{
 		if (g_bPrintID)
 		{
 			XnPoint3D com;
-			g_UserGenerator.GetCoM(aUsers[i], com);
-			g_DepthGenerator.ConvertRealWorldToProjective(1, &com, &com);
+			oSkel->g_UserGenerator.GetCoM(aUsers[i], com);
+			oSkel->g_DepthGenerator.ConvertRealWorldToProjective(1, &com, &com);
 
 			xnOSMemSet(strLabel, 0, sizeof(strLabel));
 			if (!g_bPrintState)
@@ -296,12 +306,12 @@ void DrawDepthMap(const xn::DepthMetaData& dmd, const xn::SceneMetaData& smd)
 				// Tracking
 				sprintf(strLabel, "%d", aUsers[i]);
 			}
-			else if (g_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i]))
+			else if (oSkel->g_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i]))
 			{
 				// Tracking
 				sprintf(strLabel, "%d - Tracking", aUsers[i]);
 			}
-			else if (g_UserGenerator.GetSkeletonCap().IsCalibrating(aUsers[i]))
+			else if (oSkel->g_UserGenerator.GetSkeletonCap().IsCalibrating(aUsers[i]))
 			{
 				// Calibrating
 				sprintf(strLabel, "%d - Calibrating...", aUsers[i]);
@@ -319,7 +329,7 @@ void DrawDepthMap(const xn::DepthMetaData& dmd, const xn::SceneMetaData& smd)
 			glPrintString(GLUT_BITMAP_HELVETICA_18, strLabel);
 		}
 
-		if (g_bDrawSkeleton && g_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i]))
+		if (g_bDrawSkeleton && oSkel->g_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i]))
 		{
 			glBegin(GL_LINES);
 

@@ -22,7 +22,7 @@
 #ifndef XNV_POINT_DRAWER_H_
 #define XNV_POINT_DRAWER_H_
 
-#include <XnCppWrapper.h>
+#include "OpenNISkeleton.h"
 
 void DrawDepthMap(const xn::DepthMetaData& dmd, const xn::SceneMetaData& smd);
 
