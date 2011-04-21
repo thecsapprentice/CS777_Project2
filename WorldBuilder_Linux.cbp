@@ -13,12 +13,9 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="/usr/include/ni" />
-					<Add directory="/usr/include/nite" />
 				</Compiler>
 				<Linker>
-					<Add library="/usr/lib64/libglut.so" />
-					<Add library="/usr/lib64/libOpenNI.so" />
+					<Add directory="libs/Debug/Linux" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -31,18 +28,39 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add directory="libs/Release/Linux" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="/usr/include/ni" />
+			<Add directory="/usr/include/nite" />
+			<Add directory="GeometricTools" />
 		</Compiler>
 		<Linker>
 			<Add library="GL" />
 			<Add library="X11" />
+			<Add library="/usr/lib64/libglut.so" />
+			<Add library="/usr/lib64/libOpenNI.so" />
+			<Add library="libWm5GlxApplication.a" />
+			<Add library="libWm5GlxGraphics.a" />
+			<Add library="libWm5Imagics.a" />
+			<Add library="libWm5Physics.a" />
+			<Add library="libWm5Mathematics.a" />
+			<Add library="libWm5Core.a" />
 		</Linker>
-		<Unit filename="SceneDrawer.cpp" />
-		<Unit filename="SceneDrawer.h" />
+		<Unit filename="Config.xml" />
+		<Unit filename="OpenNISkeleton.cpp" />
+		<Unit filename="OpenNISkeleton.h" />
+		<Unit filename="SceneDrawer.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SceneDrawer.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="WorldWindow.cpp" />
+		<Unit filename="WorldWindow.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<envvars />

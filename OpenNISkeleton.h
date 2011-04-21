@@ -24,6 +24,7 @@ class OpenNISkeleton
     static OpenNISkeleton* getInstance();
     static void tearDown();
     void startGenerating();
+    float getHandDist();
 
     xn::Context g_Context;
     xn::DepthGenerator g_DepthGenerator;

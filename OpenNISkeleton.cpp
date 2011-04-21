@@ -1,4 +1,5 @@
 #include "OpenNISkeleton.h"
+#include <cmath>
 
 OpenNISkeleton* OpenNISkeleton::myInstance = NULL;
 
@@ -18,7 +19,55 @@ void OpenNISkeleton::tearDown()
             delete myInstance;
             myInstance = NULL;
         }
-} 
+}
+
+
+float OpenNISkeleton::getHandDist()
+{
+	//XnUserID aUsers[1];
+	//XnUInt16 nUsers = 1;
+    XnPoint3D pt[2];
+    XnSkeletonJointPosition joint1, joint2;
+    int user = 1;
+    float dist = -1;
+	//g_UserGenerator.GetUsers(aUsers, nUsers);
+
+    if (!g_UserGenerator.GetSkeletonCap().IsTracking(user))
+        {
+            return dist;
+        }
+
+    g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(user,
+                                                              XN_SKEL_RIGHT_HAND,
+                                                              joint1);
+    g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(user,
+                                                              XN_SKEL_LEFT_HAND,
+                                                              joint2);
+
+    pt[0] = joint1.position;
+    pt[1] = joint2.position;
+
+    dist = std::sqrt( std::pow( (pt[0].X - pt[1].X), 2 ) +
+                      std::pow( (pt[0].Y - pt[1].Y), 2 ) +
+                      std::pow( (pt[0].Z - pt[1].Z), 2 ) );
+
+    return dist;
+
+}
+
+
+
+
+
+
+
+
+/*
+
+   Private Member Functions
+
+*/
+
 
 OpenNISkeleton::OpenNISkeleton()
 {
@@ -42,7 +91,7 @@ OpenNISkeleton::OpenNISkeleton()
 			printf("Open failed: %s\n", xnGetStatusString(nRetVal));
 			throw (nRetVal);
 		}
-	
+
 
 	nRetVal = g_Context.FindExistingNode(XN_NODE_TYPE_DEPTH, g_DepthGenerator);
 	CHECK_RC(nRetVal, "Find depth generator");
